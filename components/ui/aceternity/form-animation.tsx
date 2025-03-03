@@ -17,9 +17,9 @@ export const BackgroundGradient = ({
       <motion.div
         initial={{ opacity: 0.5, width: "50%" }}
         animate={{ opacity: 1, width: "100%" }}
-        className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl transition-all"
+        className="absolute inset-0 rounded-3xl bg-gradient-to-r from-black-500 to-black-100 blur-xl transition-all"
       />
-      <div className={cn("relative bg-gray-900 rounded-[inherit]", className)}>
+      <div className={cn("relative bg-black-900 rounded-[inherit]", className)}>
         {children}
       </div>
     </div>
