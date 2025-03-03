@@ -1,74 +1,125 @@
-import { auth } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
-import { createServerClient } from "@/lib/supabase/server"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+'use client';
+
+import { useUser } from "@clerk/nextjs";
+import { HoverEffect } from "@/components/ui/aceternity/cards";
+import { BackgroundGradient } from "@/components/ui/aceternity/form-animation";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { IoMdAdd } from "react-icons/io";
+import { HiOutlineClipboardDocument } from "react-icons/hi2";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-export default async function ComplaintsPage() {
-  const { userId } = await auth()
-  if (!userId) redirect("/sign-in")
+export default function ComplaintsPage() {
+  const { user } = useUser();
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('all');
 
-  const supabase = await createServerClient()
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      if (!user) return;
+      
+      const supabase = createClient();
+      let query = supabase
+        .from('complaints')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-  // Get user's complaints
-  const { data: complaints } = await supabase
-    .from("complaints")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
+      if (filter !== 'all') {
+        query = query.eq('status', filter);
+      }
+
+      try {
+        const { data, error: supabaseError } = await query;
+        
+        if (supabaseError) throw supabaseError;
+        
+        setComplaints(data || []);
+      } catch (err) {
+        console.error('Error fetching complaints:', err);
+        setError('Failed to load reports');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComplaints();
+  }, [user, filter]);
+
+  const items = complaints.map(complaint => ({
+    title: complaint.category.charAt(0).toUpperCase() + complaint.category.slice(1),
+    description: `${complaint.description.substring(0, 100)}... 
+      [Status: ${complaint.status.toUpperCase()}]`,
+    link: `/complaints/${complaint.id}`,
+    icon: <HiOutlineClipboardDocument className="w-6 h-6" />,
+  }));
+
+  const statusOptions = [
+    { value: 'all', label: 'All Reports' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'resolved', label: 'Resolved' },
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold">My Reports</h1>
-        <Button asChild>
-          <Link href="/complaints/new">New Report</Link>
-        </Button>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <BackgroundGradient className="p-8 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white mb-2">My Reports</h1>
+            <p className="text-gray-300">Track and manage your submitted reports</p>
+          </div>
+          <div className="flex gap-4">
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Link href="/complaints/new">
+              <Button>
+                <IoMdAdd className="w-4 h-4 mr-2" />
+                New Report
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </BackgroundGradient>
 
-      {/* Filter and sort controls can be added here */}
-      
-      {complaints && complaints.length > 0 ? (
-        <div className="grid gap-4">
-          {complaints.map((complaint) => (
-            <Card key={complaint.id}>
-              <CardHeader>
-                <CardTitle>{complaint.category}</CardTitle>
-                <CardDescription>
-                  Reported on {new Date(complaint.created_at).toLocaleDateString()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-2">{complaint.description}</p>
-                <p className="text-sm font-medium">
-                  Status: <span className="capitalize">{complaint.status}</span>
-                </p>
-                <div className="mt-4">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/complaints/${complaint.id}`}>View Details</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      {loading ? (
+        <div className="text-center py-10">
+          <p className="text-gray-400">Loading reports...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-10">
+          <p className="text-red-400">{error}</p>
+        </div>
+      ) : complaints.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-400 mb-4">No reports found</p>
+          <Button asChild>
+            <Link href="/complaints/new">Submit Your First Report</Link>
+          </Button>
         </div>
       ) : (
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-center text-muted-foreground">
-              No complaints submitted yet
-            </p>
-          </CardContent>
-        </Card>
+        <HoverEffect items={items} className="gap-4" />
       )}
     </div>
-  )
-} 
+  );
+}

@@ -119,11 +119,33 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-secondary rounded-lg border border-border shadow-lg;
+  }
+  
+  .heading-1 {
+    @apply text-2xl font-bold text-white mb-4;
+  }
+  
+  .heading-2 {
+    @apply text-xl font-semibold text-white mb-3;
+  }
+  
+  .text-muted {
+    @apply text-muted-foreground;
   }
 }

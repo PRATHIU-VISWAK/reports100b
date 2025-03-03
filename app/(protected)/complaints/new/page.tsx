@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { BackgroundGradient } from "@/components/ui/aceternity/form-animation"
 import type { Database } from "@/types/supabase"
 
 export default function NewComplaintPage() {
@@ -118,90 +119,92 @@ export default function NewComplaintPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Submit New Report</CardTitle>
-          <CardDescription>
-            Report an issue in your community
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {success && (
-              <Alert>
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="potholes">Potholes</SelectItem>
-                  <SelectItem value="streetlights">Streetlights</SelectItem>
-                  <SelectItem value="drainage">Drainage</SelectItem>
-                  <SelectItem value="garbage">Garbage</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Please describe the issue in detail..."
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Street address or landmark"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="photo">Photo (Optional)</Label>
-              <Input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoChange}
-                className="cursor-pointer"
-              />
-              {photoPreview && (
-                <div className="mt-2 rounded-md overflow-hidden">
-                  <img
-                    src={photoPreview}
-                    alt="Preview"
-                    className="max-h-48 object-contain"
-                  />
-                </div>
+      <BackgroundGradient className="p-6">
+        <Card className="bg-transparent border-none shadow-none">
+          <CardHeader>
+            <CardTitle>Submit New Report</CardTitle>
+            <CardDescription>
+              Report an issue in your community
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Submitting Report..." : "Submit Report"}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+              {success && (
+                <Alert>
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="potholes">Potholes</SelectItem>
+                    <SelectItem value="streetlights">Streetlights</SelectItem>
+                    <SelectItem value="drainage">Drainage</SelectItem>
+                    <SelectItem value="garbage">Garbage</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Please describe the issue in detail..."
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Street address or landmark"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="photo">Photo (Optional)</Label>
+                <Input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="cursor-pointer"
+                />
+                {photoPreview && (
+                  <div className="mt-2 rounded-md overflow-hidden">
+                    <img
+                      src={photoPreview}
+                      alt="Preview"
+                      className="max-h-48 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Submitting Report..." : "Submit Report"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </BackgroundGradient>
     </div>
   )
-} 
+}

@@ -2,24 +2,29 @@ import Link from "next/link"
 import { auth } from "@clerk/nextjs/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
 
 export default async function DashboardPage() {
   const { userId } = auth()
   const supabase = createServerClient()
   
-  // Get complaint stats
-  const { data: stats, error } = await supabase
+  // Get complaint stats with better filtering
+  const { data: complaints, error } = await supabase
     .from('complaints')
-    .select('status')
+    .select('*')
     .eq('user_id', userId)
-  
-  // Count complaints by status
+
+  if (error) {
+    console.error('Error fetching complaints:', error)
+    return null
+  }
+
+  // Calculate counts
   const counts = {
-    total: stats?.length || 0,
-    pending: stats?.filter(c => c.status === 'pending').length || 0,
-    in_progress: stats?.filter(c => c.status === 'in_progress').length || 0,
-    resolved: stats?.filter(c => c.status === 'resolved').length || 0,
+    total: complaints?.length || 0,
+    pending: complaints?.filter(c => c.status === 'pending').length || 0,
+    in_progress: complaints?.filter(c => c.status === 'in_progress').length || 0,
+    resolved: complaints?.filter(c => c.status === 'resolved').length || 0,
   }
 
   return (
@@ -27,90 +32,66 @@ export default async function DashboardPage() {
       <h1 className="text-3xl font-bold mb-6">Your Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Total Reports</CardTitle>
-            <CardDescription>All your submitted reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{counts.total}</p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/complaints">View All</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-xl font-bold mb-1">Total Reports</h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">All your submitted reports</p>
+          <p className="text-4xl font-bold mb-4">{counts.total}</p>
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link href="/complaints">View All</Link>
+          </Button>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Pending</CardTitle>
-            <CardDescription>Reports awaiting review</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{counts.pending}</p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/complaints?status=pending">View Pending</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-xl font-bold mb-1">Pending</h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Reports awaiting review</p>
+          <p className="text-4xl font-bold mb-4">{counts.pending}</p>
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link href="/complaints?status=pending">View Pending</Link>
+          </Button>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">In Progress</CardTitle>
-            <CardDescription>Reports being addressed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{counts.in_progress}</p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/complaints?status=in_progress">View In Progress</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-xl font-bold mb-1">In Progress</h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Reports being addressed</p>
+          <p className="text-4xl font-bold mb-4">{counts.in_progress}</p>
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link href="/complaints?status=in_progress">View In Progress</Link>
+          </Button>
+        </AnimatedCard>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+        <AnimatedCard>
+          <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
+          <div className="flex flex-col gap-4">
             <Button asChild className="w-full">
               <Link href="/complaints/new">Submit New Report</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href="/profile">Your Profile</Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {counts.total > 0 ? (
-              <div className="text-sm">
-                <p className="mb-2">Recently reported issues will appear here.</p>
-                <Link href="/complaints" className="text-primary hover:underline">
-                  View your complete history
-                </Link>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">You have not submitted any reports yet.</p>
-                <Button asChild>
-                  <Link href="/complaints/new">Submit Your First Report</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-xl font-bold mb-4">Recent Activity</h3>
+          {counts.total > 0 ? (
+            <div className="text-sm">
+              <p className="mb-2">Recently reported issues will appear here.</p>
+              <Link href="/complaints" className="text-primary hover:underline">
+                View your complete history
+              </Link>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">You have not submitted any reports yet.</p>
+              <Button asChild>
+                <Link href="/complaints/new">Submit Your First Report</Link>
+              </Button>
+            </div>
+          )}
+        </AnimatedCard>
       </div>
     </div>
   )
-} 
+}

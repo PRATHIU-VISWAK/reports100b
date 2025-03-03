@@ -1,7 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
 
 export default async function AdminDashboardPage() {
   const supabase = createServerClient()
@@ -61,43 +61,27 @@ export default async function AdminDashboardPage() {
       
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Total Reports</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{totalComplaints}</p>
-          </CardContent>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-lg font-bold mb-2">Total Reports</h3>
+          <p className="text-3xl font-bold">{totalComplaints}</p>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{pendingComplaints}</p>
-          </CardContent>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-lg font-bold mb-2">Pending</h3>
+          <p className="text-3xl font-bold">{pendingComplaints}</p>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Resolved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{resolvedComplaints}</p>
-          </CardContent>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-lg font-bold mb-2">Resolved</h3>
+          <p className="text-3xl font-bold">{resolvedComplaints}</p>
+        </AnimatedCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Resolution Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">
-              {totalComplaints ? Math.round((resolvedComplaints! / totalComplaints!) * 100) : 0}%
-            </p>
-          </CardContent>
-        </Card>
+        <AnimatedCard>
+          <h3 className="text-lg font-bold mb-2">Resolution Rate</h3>
+          <p className="text-3xl font-bold">
+            {totalComplaints ? Math.round((resolvedComplaints! / totalComplaints!) * 100) : 0}%
+          </p>
+        </AnimatedCard>
       </div>
       
       <div className="flex flex-col md:flex-row gap-8">
@@ -113,44 +97,36 @@ export default async function AdminDashboardPage() {
           {recentComplaints && recentComplaints.length > 0 ? (
             <div className="space-y-4">
               {recentComplaints.map((complaint) => (
-                <Card key={complaint.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between">
-                      <CardTitle>{complaint.category}</CardTitle>
-                      <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                        {complaint.status}
-                      </span>
-                    </div>
-                    <CardDescription>
-                      Reported by {complaint.profiles?.name || "Anonymous"} on {new Date(complaint.created_at).toLocaleDateString()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="line-clamp-2">{complaint.description}</p>
-                    <div className="mt-4">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/admin/complaints/${complaint.id}`}>View Details</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AnimatedCard key={complaint.id}>
+                  <div className="flex justify-between mb-2">
+                    <h3 className="font-bold">{complaint.category}</h3>
+                    <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      {complaint.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-2">
+                    Reported by {complaint.profiles?.name || "Anonymous"} on {new Date(complaint.created_at).toLocaleDateString()}
+                  </p>
+                  <p className="line-clamp-2 mb-4">{complaint.description}</p>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/admin/complaints/${complaint.id}`}>View Details</Link>
+                  </Button>
+                </AnimatedCard>
               ))}
             </div>
           ) : (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <p className="text-gray-500 dark:text-gray-400">
-                  No reports have been submitted yet.
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedCard>
+              <p className="text-center text-neutral-500 dark:text-neutral-400 py-4">
+                No reports have been submitted yet.
+              </p>
+            </AnimatedCard>
           )}
         </div>
         
         {/* Category Stats */}
         <div className="w-full md:w-1/3">
           <h2 className="text-2xl font-bold mb-4">Categories</h2>
-          <Card>
+          <AnimatedCard>
             <CardContent className="p-6">
               {categoryCounts && Object.keys(categoryCounts).length > 0 ? (
                 <div className="space-y-4">
@@ -180,9 +156,9 @@ export default async function AdminDashboardPage() {
                 </p>
               )}
             </CardContent>
-          </Card>
+          </AnimatedCard>
         </div>
       </div>
     </div>
   )
-} 
+}

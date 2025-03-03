@@ -1,16 +1,15 @@
-import { Navbar } from "./navbar"
+import React from 'react'
+import { Navigation } from './nav'
 
-interface MainLayoutProps {
-  children: React.ReactNode
-}
-
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="pt-16">
-        {children}
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navigation />
+      <main className="flex-1 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          {children}
+        </div>
       </main>
     </div>
   )
-} 
+}
