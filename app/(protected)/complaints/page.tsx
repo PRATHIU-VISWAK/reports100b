@@ -17,9 +17,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface Complaint {
+  id: string;
+  category: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'resolved';
+  created_at: string;
+  user_id: string;
+}
+
 export default function ComplaintsPage() {
   const { user } = useUser();
-  const [complaints, setComplaints] = useState<any[]>([]);
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');

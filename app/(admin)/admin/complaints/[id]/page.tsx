@@ -30,6 +30,7 @@ export default function AdminComplaintDetailPage({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   const router = useRouter()
   const supabase = createClientComponentClient()
@@ -120,6 +121,35 @@ export default function AdminComplaintDetailPage({
       setSubmitting(false)
     }
   }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this complaint? This action cannot be undone.')) {
+      return
+    }
+
+    setIsDeleting(true)
+    setError(null)
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('complaints')
+        .delete()
+        .eq('id', params.id)
+
+      if (deleteError) throw deleteError
+
+      setSuccess('Complaint deleted successfully')
+      
+      // Redirect after short delay
+      setTimeout(() => {
+        router.push('/admin/complaints')
+      }, 1500)
+    } catch (error: any) {
+      setError(`Failed to delete complaint: ${error.message}`)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
   
   if (loading) {
     return (
@@ -151,17 +181,20 @@ export default function AdminComplaintDetailPage({
           <Link href="/admin/complaints">Back to Complaints</Link>
         </Button>
         
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold capitalize">{complaint.category}</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               Reported on {new Date(complaint.created_at).toLocaleDateString()} by {complaint.profiles?.name || "Anonymous"}
             </p>
           </div>
-          
-          <div className="inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-            {complaint.status}
-          </div>
+          <Button 
+            variant="destructive" 
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete Complaint"}
+          </Button>
         </div>
       </div>
       
@@ -311,4 +344,4 @@ export default function AdminComplaintDetailPage({
       </div>
     </div>
   )
-} 
+}

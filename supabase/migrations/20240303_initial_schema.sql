@@ -88,6 +88,17 @@ create policy "Admins and Elite can update any complaint"
         )
     );
 
+-- Add delete policy for complaints
+create policy "Admins can delete any complaint"
+    on complaints for delete
+    using (
+        exists (
+            select 1 from profiles
+            where id = auth.uid()::text
+            and role in ('admin', 'elite')
+        )
+    );
+
 -- Responses policies
 create policy "Anyone can view responses"
     on responses for select
@@ -145,4 +156,4 @@ begin
     set role = 'admin'
     where id = target_user_id;
 end;
-$$; 
+$$;

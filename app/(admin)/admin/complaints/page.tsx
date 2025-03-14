@@ -101,6 +101,30 @@ export default function AdminComplaintsPage() {
       setError(`Failed to update status: ${error.message}`)
     }
   }
+
+  const handleDelete = async (complaintId: string) => {
+    if (!window.confirm('Are you sure you want to delete this complaint? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('complaints')
+        .delete()
+        .eq('id', complaintId)
+
+      if (error) throw error
+
+      // Update local state to remove the deleted complaint
+      setComplaints(complaints.filter(c => c.id !== complaintId))
+      setSuccess('Complaint deleted successfully')
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (error: any) {
+      setError(`Failed to delete complaint: ${error.message}`)
+    }
+  }
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -229,11 +253,20 @@ export default function AdminComplaintsPage() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/complaints/${complaint.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/admin/complaints/${complaint.id}`}>
+                          View Details
+                        </Link>
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDelete(complaint.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -251,4 +284,4 @@ export default function AdminComplaintsPage() {
       )}
     </div>
   )
-} 
+}
