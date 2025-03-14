@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
-export const createServerClient = () => {
+export const createClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -9,7 +9,7 @@ export const createServerClient = () => {
     throw new Error('Missing Supabase environment variables');
   }
 
-  return createClient(supabaseUrl, supabaseKey, {
+  return createSupabaseClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,
       storage: {

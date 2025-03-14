@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { auth } from "@clerk/nextjs/server"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/animated-card"
 import { AlertCircle } from "lucide-react"
@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default async function DashboardPage() {
   const { userId } = await auth()
-  const supabase = await createServerClient()
+  const supabase = await createClient()
 
   try {
     const { data: complaints, error } = await supabase
