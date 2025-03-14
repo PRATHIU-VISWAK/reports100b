@@ -8,7 +8,7 @@ import { Menu, X, Home, FileText, Settings } from 'lucide-react'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Reports', href: '/complaints', icon: FileText },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Settings', href: '/profile', icon: Settings },
 ]
 
 export function Navigation() {
