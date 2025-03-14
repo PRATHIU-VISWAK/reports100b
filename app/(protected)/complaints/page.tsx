@@ -19,9 +19,9 @@ import {
 
 export default function ComplaintsPage() {
   const { user } = useUser();
-  const [complaints, setComplaints] = useState([]);
+  const [complaints, setComplaints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {

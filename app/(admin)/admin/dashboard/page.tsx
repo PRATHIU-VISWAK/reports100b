@@ -1,7 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { AnimatedCard, CardContent } from "@/components/ui/animated-card"
+import { Card, CardContent } from "@/components/ui/animated-card"
 
 export default async function AdminDashboardPage() {
   const supabase = await createServerClient()
@@ -61,27 +61,27 @@ export default async function AdminDashboardPage() {
       
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <AnimatedCard>
+        <Card>
           <h3 className="text-lg font-bold mb-2">Total Reports</h3>
           <p className="text-3xl font-bold">{totalComplaints}</p>
-        </AnimatedCard>
+        </Card>
         
-        <AnimatedCard>
+        <Card>
           <h3 className="text-lg font-bold mb-2">Pending</h3>
           <p className="text-3xl font-bold">{pendingComplaints}</p>
-        </AnimatedCard>
+        </Card>
         
-        <AnimatedCard>
+        <Card>
           <h3 className="text-lg font-bold mb-2">Resolved</h3>
           <p className="text-3xl font-bold">{resolvedComplaints}</p>
-        </AnimatedCard>
+        </Card>
         
-        <AnimatedCard>
+        <Card>
           <h3 className="text-lg font-bold mb-2">Resolution Rate</h3>
           <p className="text-3xl font-bold">
             {totalComplaints ? Math.round((resolvedComplaints! / totalComplaints!) * 100) : 0}%
           </p>
-        </AnimatedCard>
+        </Card>
       </div>
       
       <div className="flex flex-col md:flex-row gap-8">
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
           {recentComplaints && recentComplaints.length > 0 ? (
             <div className="space-y-4">
               {recentComplaints.map((complaint) => (
-                <AnimatedCard key={complaint.id}>
+                <Card key={complaint.id}>
                   <div className="flex justify-between mb-2">
                     <h3 className="font-bold">{complaint.category}</h3>
                     <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
@@ -111,22 +111,22 @@ export default async function AdminDashboardPage() {
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/admin/complaints/${complaint.id}`}>View Details</Link>
                   </Button>
-                </AnimatedCard>
+                </Card>
               ))}
             </div>
           ) : (
-            <AnimatedCard>
+            <Card>
               <p className="text-center text-neutral-500 dark:text-neutral-400 py-4">
                 No reports have been submitted yet.
               </p>
-            </AnimatedCard>
+            </Card>
           )}
         </div>
         
         {/* Category Stats */}
         <div className="w-full md:w-1/3">
           <h2 className="text-2xl font-bold mb-4">Categories</h2>
-          <AnimatedCard>
+          <Card>
             <CardContent className="p-6">
               {categoryCounts && Object.keys(categoryCounts).length > 0 ? (
                 <div className="space-y-4">
@@ -156,7 +156,7 @@ export default async function AdminDashboardPage() {
                 </p>
               )}
             </CardContent>
-          </AnimatedCard>
+          </Card>
         </div>
       </div>
     </div>
