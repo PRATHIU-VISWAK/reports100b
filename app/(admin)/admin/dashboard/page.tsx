@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/animated-card"
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient()
+  const supabase = await createServerClient()
   
   // Get user session (middleware handles protection)
   const { data: { session } } = await supabase.auth.getSession()
