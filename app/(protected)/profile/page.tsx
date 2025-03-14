@@ -1,11 +1,11 @@
 import { auth } from "@clerk/nextjs/server"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { Card } from "@/components/ui/card"
 import { UserProfile } from "@clerk/nextjs"
 
 export default async function ProfilePage() {
   const { userId } = await auth()
-  const supabase = await createServerClient()
+  const supabase = await createClient()
   
   const { data: profile } = await supabase
     .from("profiles")

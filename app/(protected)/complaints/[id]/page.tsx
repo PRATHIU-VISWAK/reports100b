@@ -1,7 +1,30 @@
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
+
+interface Profile {
+  name: string;
+  role: string;
+}
+
+interface Response {
+  id: string;
+  created_at: string;
+  message: string;
+  profiles?: Profile;
+}
+
+interface Complaint {
+  id: string;
+  created_at: string;
+  description: string;
+  location: string;
+  status: string;
+  user_id: string;
+  responses: Response[];
+  category: string;
+}
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +37,7 @@ export default async function ComplaintDetailPage({
   const { userId } = await auth()
   if (!userId) redirect("/sign-in")
 
-  const supabase = await createServerClient()
+  const supabase = await createClient()
 
   // Get complaint details
   const { data: complaint } = await supabase
@@ -72,7 +95,7 @@ export default async function ComplaintDetailPage({
             <h3 className="font-medium mb-4">Response History</h3>
             {complaint.responses && complaint.responses.length > 0 ? (
               <div className="space-y-4">
-                {complaint.responses.map((response) => (
+                {complaint.responses.map((response: Response) => (
                   <Card key={response.id}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">

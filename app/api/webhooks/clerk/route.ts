@@ -1,11 +1,11 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: Request) {
   // Get the headers
-  const headerPayload = headers();
+  const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
-  const supabase = await createServerClient();
+  const supabase = await createClient();
 
   if (eventType === 'user.created' || eventType === 'user.updated') {
     const { id, first_name, phone_numbers } = evt.data
