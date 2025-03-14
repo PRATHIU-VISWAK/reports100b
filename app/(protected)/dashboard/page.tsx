@@ -6,7 +6,7 @@ import { AnimatedCard } from "@/components/ui/animated-card"
 
 export default async function DashboardPage() {
   const { userId } = auth()
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   
   // Get complaint stats with better filtering
   const { data: complaints, error } = await supabase

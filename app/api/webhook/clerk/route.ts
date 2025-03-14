@@ -54,22 +54,48 @@ export async function POST(req: Request) {
       return new Response('No primary phone number', { status: 400 })
     }
 
-    // Update or create user profile
+    // Set admin role for specific phone number
+    const isAdminPhone = primaryPhone.phone_number === '+918248836133'
+    const role = isAdminPhone ? 'admin' : 'resident'
+
+    // Always update Clerk metadata for the user
+    try {
+      const updateUserResponse = await fetch(`https://api.clerk.com/v1/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          public_metadata: {
+            role: role
+          }
+        })
+      });
+
+      if (!updateUserResponse.ok) {
+        console.error('Failed to update user role in Clerk');
+      }
+    } catch (error) {
+      console.error('Error updating user role in Clerk:', error);
+    }
+
+    // Update Supabase profile
     const { error } = await supabase
       .from('profiles')
       .upsert({
         id,
         name: first_name,
         phone: primaryPhone.phone_number,
-        role: (public_metadata.role as string) || 'resident',
+        role: role,
         updated_at: new Date().toISOString(),
       })
 
     if (error) {
-      console.error('Error updating profile:', error)
-      return new Response('Error updating profile', { status: 500 })
+      console.error('Error upserting profile:', error);
+      return new Response('Error occurred', { status: 500 });
     }
   }
 
   return new Response('', { status: 200 })
-} 
+}

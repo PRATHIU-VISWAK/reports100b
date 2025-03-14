@@ -1,52 +1,37 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-// Define route matchers
-const publicRoutes = createRouteMatcher(["/"])
-const authRoutes = createRouteMatcher([
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/reset-password(.*)",
-  "/sso-callback(.*)",
-  "/verify(.*)"
-])
-const adminRoutes = createRouteMatcher(["/admin(.*)"])
-
-export default clerkMiddleware(async (auth, request) => {
-  // Handle /login redirect
-  if (request.nextUrl.pathname === "/login") {
-    return Response.redirect(new URL("/sign-in", request.url))
-  }
-
-  // Get auth state
-  const authObject = await auth()
-
-  // If on auth pages and authenticated, redirect to dashboard
-  if (authRoutes(request) && authObject.userId) {
-    return Response.redirect(new URL("/dashboard", request.url))
-  }
-
-  // If not public or auth route, protect it
-  if (!publicRoutes(request) && !authRoutes(request)) {
-    if (!authObject.userId) {
-      return Response.redirect(new URL("/sign-in", request.url))
+// This example protects all routes including api/trpc routes
+export default clerkMiddleware({
+  publicRoutes: ["/", "/api/webhooks/clerk"],
+  ignoredRoutes: ["/api/webhooks/clerk"],
+  afterAuth(auth, req) {
+    // Handle auth logic after Clerk authenticates the request
+    if (!auth.userId && !auth.isPublicRoute) {
+      const signInUrl = new URL('/sign-in', req.url)
+      signInUrl.searchParams.set('redirect_url', req.url)
+      return Response.redirect(signInUrl)
     }
-  }
 
-  // Check admin routes
-  if (adminRoutes(request)) {
-    const metadata = authObject.sessionClaims?.metadata as { role?: string } || {}
-    const role = metadata.role || "resident"
+    // Get the role from public metadata
+    const role = auth.sessionClaims?.public_metadata?.role as string || "resident"
 
-    if (role !== "admin") {
-      return Response.redirect(new URL("/dashboard", request.url))
+    // Check admin routes
+    if (req.nextUrl.pathname.startsWith('/admin') && role !== 'admin') {
+      const dashboardUrl = new URL('/dashboard', req.url)
+      return Response.redirect(dashboardUrl)
     }
+
+    // Check dashboard redirect for admins
+    if (req.nextUrl.pathname === '/dashboard' && role === 'admin') {
+      const adminDashboardUrl = new URL('/admin/dashboard', req.url)
+      return Response.redirect(adminDashboardUrl)
+    }
+
+    return null // Allow the request to proceed
   }
-})
+});
 
 export const config = {
-  matcher: [
-    "/((?!.+\\.[\\w]+$|_next).*)", // Skip static files
-    "/", // Match root
-    "/(api|trpc)(.*)" // Match API routes
-  ]
-} 
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+};

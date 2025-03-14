@@ -96,4 +96,4 @@ export default async function ComplaintDetailPage({
       </Card>
     </div>
   )
-} 
+}

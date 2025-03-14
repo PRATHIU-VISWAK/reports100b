@@ -1,10 +1,10 @@
 import { createServerClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { AnimatedCard } from "@/components/ui/animated-card"
+import { AnimatedCard, CardContent } from "@/components/ui/animated-card"
 
 export default async function AdminDashboardPage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   
   // Get user session (middleware handles protection)
   const { data: { session } } = await supabase.auth.getSession()

@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase/server"
 
 export default async function ProfilePage() {
   const { userId } = await auth()
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   
   // Get user profile
   const { data: profile } = await supabase
@@ -38,4 +38,4 @@ export default async function ProfilePage() {
       </div>
     </div>
   )
-} 
+}

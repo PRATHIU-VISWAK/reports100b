@@ -41,24 +41,49 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   if (eventType === 'user.created' || eventType === 'user.updated') {
-    const { id, first_name, last_name, phone_numbers } = evt.data;
-    
-    const phone = phone_numbers?.[0]?.phone_number;
-    const name = [first_name, last_name].filter(Boolean).join(' ');
+    const { id, first_name, phone_numbers } = evt.data
 
+    // Get the primary phone number
+    const primaryPhone = phone_numbers?.find(p => p.id === evt.data.primary_phone_number_id)
+
+    if (!primaryPhone) {
+      console.error('No primary phone number found')
+      return new Response('No primary phone number', { status: 400 })
+    }
+
+    // Set admin role for specific phone number
+    const isAdminPhone = primaryPhone.phone_number === '+918248836133'
+    const role = isAdminPhone ? 'admin' : 'resident'
+
+    // Always update Clerk metadata regardless of previous state
+    try {
+      await fetch(`https://api.clerk.com/v1/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          public_metadata: { role }
+        })
+      });
+    } catch (error) {
+      console.error('Error updating user role in Clerk:', error);
+    }
+
+    // Update Supabase profile
     const { error } = await supabase
       .from('profiles')
       .upsert({
         id,
-        name,
-        phone,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'id'
-      });
+        name: first_name,
+        phone: primaryPhone.phone_number,
+        role,
+        updated_at: new Date().toISOString(),
+      })
 
     if (error) {
       console.error('Error upserting profile:', error);
@@ -67,4 +92,4 @@ export async function POST(req: Request) {
   }
 
   return new Response('Success', { status: 200 });
-} 
+}
